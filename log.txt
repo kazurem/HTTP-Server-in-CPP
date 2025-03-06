@@ -1,10 +1,2 @@
-Starting listening session at address 127.0.0.1 on port 9000 (http://127.0.0.1:9000/) AT Thu Mar  6 23:26:00 2025
-
-Connection accepted! AT Thu Mar  6 23:26:05 2025
-
-Response sent successfully! AT Thu Mar  6 23:26:05 2025
-
-Connection accepted! AT Thu Mar  6 23:26:05 2025
-
-Response sent successfully! AT Thu Mar  6 23:26:05 2025
+Starting listening session at address 127.0.0.1 on port 9000 (http://127.0.0.1:9000/) AT Thu Mar  6 23:33:48 2025
 
