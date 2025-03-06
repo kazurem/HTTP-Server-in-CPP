@@ -73,6 +73,7 @@ namespace http
         std::ostringstream osstr;
         osstr << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << " (http://" << inet_ntoa(socket_address.sin_addr)<< ":" << ntohs(socket_address.sin_port) << "/)";
         logger.log(osstr.str());
+        std::cout << "\n\n";
 
 
         if(listen(socket_file_descriptor, 100) < 0)

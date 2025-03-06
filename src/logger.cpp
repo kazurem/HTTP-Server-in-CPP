@@ -19,9 +19,9 @@ Logger::Logger(std::string file_path, bool log_to_file)
 void Logger::log(std::string message)
 {
     time(&current_time);
-    std::cout << message << " AT " << ctime(&current_time) << std::endl;
+    std::cout << message << " AT " << ctime(&current_time);
     if(log_to_file == true)
     {
-        write_to_file << message << " AT " << ctime(&current_time) << std::endl;
+        write_to_file << message << " AT " << ctime(&current_time) << std::flush;
     }
 }
