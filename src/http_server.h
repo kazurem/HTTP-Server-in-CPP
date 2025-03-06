@@ -6,15 +6,17 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sstream>
+#include "logger.h"
 
 namespace http
 {
     class HTTPServer
     {
         public:
-            HTTPServer(std::string ip_addr, int port);
+            HTTPServer(std::string ip_addr, int port, Logger &logger);
+            HTTPServer(std::string path_to_config, Logger &logger);
             ~HTTPServer();
-            void startListeningSession();
+            void startListeningSession(Logger &logger);
             void stopListeningSession();
 
         private:
@@ -26,7 +28,8 @@ namespace http
             unsigned int socket_address_length;
             int BUFFER_SIZE;
             std::string server_message;
-            void acceptConnection(int &new_socket_fd);
-            void sendResponse(std::string message);
+            void acceptConnection(int &new_socket_fd, Logger &logger);
+            void sendResponse(std::string message, Logger &logger);
+            void startServer(Logger &logger);
     };
 }

@@ -2,38 +2,60 @@
 
 namespace http
 {
-    HTTPServer::HTTPServer(std::string ip_address, int port)
+
+    HTTPServer::HTTPServer(std::string path_to_config, Logger &logger)
     {
-        this->ip_address = ip_address;
-        this->port = port;
-        socket_address_length = sizeof(socket_address);
+        std::ifstream config_file(path_to_config);
+        config_file >> ip_address;
+        config_file >> port;
         BUFFER_SIZE = 30760;
-        socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0); //creating the socket
-        if(socket_file_descriptor < 0)
-        {
-            std::cout << "couldn't create socket!" << std::endl;
-            exit(1); 
-        }
-        
         
         //initializing the sockaddr_in struct
         socket_address.sin_family = AF_INET;
         socket_address.sin_port = htons(this->port);
         socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str());
+        startServer(logger);
+    }
 
-
-        //bind the socket to the address
-        if(bind(socket_file_descriptor, (sockaddr *)&socket_address, socket_address_length) < 0)
-        {
-            std::cout << "couldn't bind socket!" << std::endl;
-            exit(1);
-        }
+    HTTPServer::HTTPServer(std::string ip_address, int port, Logger &logger)
+    {
+        this->ip_address = ip_address;
+        this->port = port;
+        socket_address_length = sizeof(socket_address);
+        BUFFER_SIZE = 30760;
+        
+        //initializing the sockaddr_in struct
+        socket_address.sin_family = AF_INET;
+        socket_address.sin_port = htons(this->port);
+        socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str());  
+        startServer(logger);
     }
 
 
     HTTPServer::~HTTPServer()
     {
         stopListeningSession();
+    }
+
+    void HTTPServer::startServer(Logger &logger)
+    {
+        //creating the socket   
+        socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0); 
+        if(socket_file_descriptor < 0)
+        {
+            logger.log("Socket creation failed!");            
+            exit(1); 
+        }
+
+
+        //bind the socket to the address
+        if(bind(socket_file_descriptor, (sockaddr *)&socket_address, socket_address_length) < 0)
+        {
+            std::ostringstream osstr;
+            osstr << "Socket could not be bound to ADDRESS " << inet_ntoa(socket_address.sin_addr) << " on PORT " << ntohs(socket_address.sin_port);
+            logger.log(osstr.str());
+            exit(1);
+        }
     }
 
 
@@ -45,12 +67,16 @@ namespace http
     }
 
 
-    void HTTPServer::startListeningSession()
+    void HTTPServer::startListeningSession(Logger &logger)
     {
-        std::cout << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << std::endl;
+        std::ostringstream osstr;
+        osstr << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << " (http://" << inet_ntoa(socket_address.sin_addr)<< ":" << ntohs(socket_address.sin_port) << "/)";
+        logger.log(osstr.str());
+
+
         if(listen(socket_file_descriptor, 100) < 0)
         {
-            std::cout << "couldn't start listening!" << std::endl;
+            logger.log("Socket was not able to start listening!");
             exit(1);
         }
 
@@ -58,29 +84,27 @@ namespace http
 
         while(true)
         {
-            acceptConnection(new_socket_file_descriptor);
+            acceptConnection(new_socket_file_descriptor, logger);
             char buffer[BUFFER_SIZE] = {0};
             bytes_received = read(new_socket_file_descriptor, buffer, BUFFER_SIZE);
             if(bytes_received < 0)
             {
-                std::cout << "couldn't read data!" << std::endl;
+                logger.log("Socket was not able to read data!");
                 exit(-1);
             }
 
-            sendResponse("World!");
+            sendResponse("World!", logger);
 
             close(new_socket_file_descriptor);
         }
 
     }
 
-    void HTTPServer::sendResponse(std::string message)
+    void HTTPServer::sendResponse(std::string message, Logger &logger)
     {
         std::string html_message = "<!DOCTYPE html><html lang=\"en\"><head><body><h1>Hello " + message + "!</h1></body></html>";
         std::string http_headers = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(html_message.size()) + "\r\n\r\n";
         std::string response = http_headers + html_message;
-
-        // string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1></body></html>";
        
         server_message = response;
 
@@ -88,21 +112,22 @@ namespace http
 
         if(bytes_sent != server_message.size())
         {
-            std::cout << "failed to send data!" << std::endl;
-            exit(-1);
+            logger.log("Socket was not able to send data!");
+            exit(1);
         }
-        std::cout << "Response sent!" << std::endl;
+        logger.log("Response sent successfully!");
     }
 
     
-    void HTTPServer::acceptConnection(int &new_socket_fd)
+    void HTTPServer::acceptConnection(int &new_socket_fd, Logger &logger)
     {
         new_socket_fd = accept(socket_file_descriptor, (sockaddr*)&socket_address, &socket_address_length);
 
         if(new_socket_fd < 0)
         {
-            std::cout << "couldn't accept connection!" << std::endl;
+            logger.log("Socket was not able to accept the connection!");
             exit(1);
         }
+        logger.log("Connection accepted!");
     }
 }
