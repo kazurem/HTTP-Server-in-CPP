@@ -6,7 +6,7 @@
 int main()
 {
     Logger logger("./log.txt", true);
-    http::HTTPServer server("0.0.0.0", 8080, logger);
+    http::HTTPServer server("./server_config.txt", logger);
     server.startListeningSession(logger);
     return 0;
 }

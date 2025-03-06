@@ -8,6 +8,7 @@ namespace http
         std::ifstream config_file(path_to_config);
         config_file >> ip_address;
         config_file >> port;
+        socket_address_length = sizeof(socket_address);
         BUFFER_SIZE = 30760;
         
         //initializing the sockaddr_in struct
@@ -27,7 +28,7 @@ namespace http
         //initializing the sockaddr_in struct
         socket_address.sin_family = AF_INET;
         socket_address.sin_port = htons(this->port);
-        socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str());  
+        socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str()); 
         startServer(logger);
     }
 
