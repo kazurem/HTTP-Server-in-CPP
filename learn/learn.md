@@ -11,7 +11,7 @@ There are any more.
 So... what is a __HTTP server__?
 It is one of the most essential components of a __Web Server__. It understands URLs (web addresses) and HTTP (the protocol your browser uses to view webpages).  
 
-![web server representation](../images/web-server.svg)
+![web server representation](../images/web-server.png)
 
 # 2. What is a Protocol?
 
