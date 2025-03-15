@@ -14,10 +14,10 @@ namespace http
     class HTTPServer
     {
     public:
-        HTTPServer(std::string ip_addr, int port, Logger &logger, std::string file_to_read = "index.html");
-        HTTPServer(std::string path_to_config, Logger &logger, std::string file_to_read = "index.html");
+        HTTPServer(std::string ip_addr, int port,std::string file_to_read = "index.html", bool log_to_file = true);
+        HTTPServer(std::string path_to_config,std::string file_to_read = "index.html", bool log_to_file = true);
         ~HTTPServer();
-        void startListeningSession(Logger &logger);
+        void startListeningSession();
         void stopListeningSession();
 
     private:
@@ -29,9 +29,10 @@ namespace http
         unsigned int socket_address_length;
         int BUFFER_SIZE;
         std::string server_message;
-        void acceptConnection(int &new_socket_fd, Logger &logger);
-        void sendResponse(std::string message, Logger &logger);
-        void startServer(Logger &logger);
+        void acceptConnection(int &new_socket_fd);
+        void sendResponse(std::string message);
+        void startServer();
         ReadFileAndBuildResponse sfs;
+        Logger *logger;
     };
 }

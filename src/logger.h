@@ -10,6 +10,7 @@ public:
     std::string file_path;
 
     Logger(std::string file_path, bool log_to_file = false);
+    ~Logger();
     void log(std::string message);
 
 private:

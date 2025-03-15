@@ -19,7 +19,7 @@ void ReadFileAndBuildResponse::getHTMLCSSBody()
     file.close();
 
     // reading css content
-    file.open("./website/style.css");
+    file.open("style.css");
 
     // clearing string stream
     string_stream.str("");
