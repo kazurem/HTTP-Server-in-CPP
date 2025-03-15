@@ -1,8 +1,9 @@
 #include <iostream>
 #include "http_server.h"
 #include "logger.h"
-#include "static-file-server.h"
-
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <signal.h>
 
 int main()
 {

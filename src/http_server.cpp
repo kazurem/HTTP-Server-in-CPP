@@ -48,7 +48,8 @@ namespace http
         socket_file_descriptor = socket(AF_INET, SOCK_STREAM, 0); 
         if(socket_file_descriptor < 0)
         {
-            logger.log("Socket creation failed!");            
+            logger.log("Socket creation failed!");
+            close(socket_file_descriptor);            
             exit(1); 
         }
 
@@ -59,6 +60,7 @@ namespace http
             std::ostringstream osstr;
             osstr << "Socket could not be bound to ADDRESS " << inet_ntoa(socket_address.sin_addr) << " on PORT " << ntohs(socket_address.sin_port);
             logger.log(osstr.str());
+            close(socket_file_descriptor);            
             exit(1);
         }
     }
@@ -83,6 +85,7 @@ namespace http
         if(listen(socket_file_descriptor, 100) < 0)
         {
             logger.log("Socket was not able to start listening!");
+            close(socket_file_descriptor);            
             exit(1);
         }
 
@@ -96,7 +99,9 @@ namespace http
             if(bytes_received < 0)
             {
                 logger.log("Socket was not able to read data!");
-                exit(-1);
+                close(socket_file_descriptor);            
+                close(new_socket_file_descriptor);            
+                exit(1);
             }
 
             sendResponse("World!", logger);
@@ -108,17 +113,18 @@ namespace http
 
     void HTTPServer::sendResponse(std::string message, Logger &logger)
     {
-        std::string response = sfs.buildResponse();
+        server_message = sfs.buildResponse();
        
-        server_message = response;
-
         int bytes_sent = write(new_socket_file_descriptor, server_message.c_str(), server_message.size());
 
         if(bytes_sent != server_message.size())
         {
             logger.log("Socket was not able to send data!");
+            close(socket_file_descriptor);            
+            close(new_socket_file_descriptor);            
             exit(1);
         }
+
         logger.log("Response sent successfully!");
     }
 
@@ -130,6 +136,8 @@ namespace http
         if(new_socket_fd < 0)
         {
             logger.log("Socket was not able to accept the connection!");
+            close(socket_file_descriptor);            
+            close(new_socket_file_descriptor);       
             exit(1);
         }
         logger.log("Connection accepted!");

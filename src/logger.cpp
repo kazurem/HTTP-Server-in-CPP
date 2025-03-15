@@ -14,6 +14,7 @@ Logger::Logger(std::string file_path, bool log_to_file)
             exit(1);
         }
     }
+    write_to_file.close();
 }
 
 void Logger::log(std::string message)
