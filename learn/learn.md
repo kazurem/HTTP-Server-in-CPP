@@ -18,7 +18,7 @@ A protocol is a set of rules which help different computers communicate with eac
 Now, what is a Hypertext Transfer Protocol (HTTP) then? It was designed for communication between webservers and to transmit hypermedia documents such as HTML.
 So, HTTP is basically a set of rules that help in sending and receiving HTML documents. HTTP responses and request look something like this:
 
-[http-response image](../images/http-response.png)
+![http-response image](../images/http-response.png)
 
 
 
