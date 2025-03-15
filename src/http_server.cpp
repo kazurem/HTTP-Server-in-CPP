@@ -3,10 +3,11 @@
 namespace http
 {
 
-    HTTPServer::HTTPServer(std::string path_to_config, Logger &logger)
+    HTTPServer::HTTPServer(std::string path_to_config, Logger &logger, std::string file_to_read)
     {
         std::ifstream config_file(path_to_config);
         config_file >> ip_address;
+        sfs.file_to_read = file_to_read;
         config_file >> port;
         socket_address_length = sizeof(socket_address);
         BUFFER_SIZE = 30760;
@@ -18,11 +19,14 @@ namespace http
         startServer(logger);
     }
 
-    HTTPServer::HTTPServer(std::string ip_address, int port, Logger &logger)
+    HTTPServer::HTTPServer(std::string ip_address, int port, Logger &logger, std::string file_to_read)
     {
         this->ip_address = ip_address;
         this->port = port;
+        sfs.file_to_read = file_to_read;
         socket_address_length = sizeof(socket_address);
+        sfs.file_to_read = "index.html";
+
         BUFFER_SIZE = 30760;
         
         //initializing the sockaddr_in struct
@@ -104,9 +108,7 @@ namespace http
 
     void HTTPServer::sendResponse(std::string message, Logger &logger)
     {
-        std::string html_message = "<!DOCTYPE html><html lang=\"en\"><head><body><h1>Hello " + message + "!</h1></body></html>";
-        std::string http_headers = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(html_message.size()) + "\r\n\r\n";
-        std::string response = http_headers + html_message;
+        std::string response = sfs.buildResponse();
        
         server_message = response;
 

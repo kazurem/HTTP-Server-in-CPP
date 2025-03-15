@@ -1,6 +1,7 @@
 #include <iostream>
 #include "http_server.h"
 #include "logger.h"
+#include "static-file-server.h"
 
 
 int main()

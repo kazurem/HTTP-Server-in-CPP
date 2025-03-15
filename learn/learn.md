@@ -20,8 +20,8 @@ So, HTTP is basically a set of rules that help in sending and receiving HTML doc
 
 ![http-response image](../images/http-response.png)
 
-
-
+read http protocol 
+and then explain
 
 # 2. Headers files used
 

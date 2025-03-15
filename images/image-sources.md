@@ -1,2 +1,2 @@
-Web-server image: [web-server image](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_web_server)
+Web-server image: [web-server image](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_web_server)  
 HTTP-Response image: [http-response image](https://www.geeksforgeeks.org/state-the-core-components-of-an-http-response/)
