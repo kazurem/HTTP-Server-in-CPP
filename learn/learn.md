@@ -14,6 +14,12 @@ It is one of the most essential components of a __Web Server__. It understands U
 ![web server representation](../images/web-server.png)
 
 # 2. What is a Protocol?
+A protocol is a set of rules which help different computers communicate with each other. IF two different computer use the same protocol, they can communicate with each other. For now, this definition will suffice. 
+Now, what is a Hypertext Transfer Protocol (HTTP) then? It was designed for communication between webservers and to transmit hypermedia documents such as HTML.
+So, HTTP is basically a set of rules that help in sending and receiving HTML documents. HTTP responses and request look something like this:
+
+[http-response image](../images/http-response.png)
+
 
 
 
