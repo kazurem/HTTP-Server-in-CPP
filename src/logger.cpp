@@ -11,7 +11,7 @@ Logger::Logger(std::string file_path, bool log_to_file)
         if(!write_to_file.is_open())
         {
             std::cerr << "ERROR: Log file couldnt be opened! Exiting Program!" << std::endl;
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
     write_to_file.close();

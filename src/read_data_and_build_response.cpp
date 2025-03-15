@@ -6,7 +6,9 @@ void ReadFileAndBuildResponse::getHTMLCSSBody()
     file.open(file_to_read);
     if (!file.is_open())
     {
-        html_body = "";
+        //default response
+        html_body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Document</title></head><body><h3>Hello!</h3><p>This is a default response!</p></body></html>";
+        return;
     }
 
     std::ostringstream string_stream;
@@ -17,11 +19,7 @@ void ReadFileAndBuildResponse::getHTMLCSSBody()
     file.close();
 
     // reading css content
-    file.open("style.css");
-    if (!file.is_open())
-    {
-        css_body = "";
-    }
+    file.open("./website/style.css");
 
     // clearing string stream
     string_stream.str("");
@@ -29,7 +27,6 @@ void ReadFileAndBuildResponse::getHTMLCSSBody()
 
     string_stream << file.rdbuf();
     css_body = string_stream.str();
-    std::cout << css_body << std::endl;
     file.close();
 }
 
@@ -53,7 +50,6 @@ std::string ReadFileAndBuildResponse::buildResponse()
 
     std::string http_headers = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(html_body.size()) + "\r\nConnection: keep-alive\r\n\r\n";
     response = http_headers + html_body;
-    std::cout << response << std::endl;
 
     return response;
 }

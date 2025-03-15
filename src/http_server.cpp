@@ -50,7 +50,7 @@ namespace http
         {
             logger.log("Socket creation failed!");
             close(socket_file_descriptor);            
-            exit(1); 
+            exit(EXIT_FAILURE); 
         }
 
 
@@ -61,7 +61,7 @@ namespace http
             osstr << "Socket could not be bound to ADDRESS " << inet_ntoa(socket_address.sin_addr) << " on PORT " << ntohs(socket_address.sin_port);
             logger.log(osstr.str());
             close(socket_file_descriptor);            
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -70,7 +70,7 @@ namespace http
     {
         close(socket_file_descriptor);
         close(new_socket_file_descriptor);
-        exit(0);
+        exit(EXIT_SUCCESS);
     }
 
 
@@ -86,7 +86,7 @@ namespace http
         {
             logger.log("Socket was not able to start listening!");
             close(socket_file_descriptor);            
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         int bytes_received;
@@ -101,7 +101,7 @@ namespace http
                 logger.log("Socket was not able to read data!");
                 close(socket_file_descriptor);            
                 close(new_socket_file_descriptor);            
-                exit(1);
+                exit(EXIT_FAILURE);
             }
 
             sendResponse("World!", logger);
@@ -122,7 +122,7 @@ namespace http
             logger.log("Socket was not able to send data!");
             close(socket_file_descriptor);            
             close(new_socket_file_descriptor);            
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         logger.log("Response sent successfully!");
@@ -138,7 +138,7 @@ namespace http
             logger.log("Socket was not able to accept the connection!");
             close(socket_file_descriptor);            
             close(new_socket_file_descriptor);       
-            exit(1);
+            exit(EXIT_FAILURE);
         }
         logger.log("Connection accepted!");
     }
