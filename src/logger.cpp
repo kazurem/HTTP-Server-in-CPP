@@ -24,9 +24,9 @@ Logger::~Logger()
 void Logger::log(std::string message)
 {
     time(&current_time);
-    std::cout << message << " AT " << ctime(&current_time);
+    std::cout << message << " " << ctime(&current_time);
     if(log_to_file == true)
     {
-        write_to_file << message << " AT " << ctime(&current_time) << std::flush; //std flush is used so that everything in the buffer get written to the log file immediatly.
+        write_to_file << message << ctime(&current_time) << std::endl; //std flush is used so that everything in the buffer get written to the log file immediatly.
     }
 }

@@ -29,8 +29,8 @@ namespace http
         unsigned int socket_address_length;
         int BUFFER_SIZE;
         std::string server_message;
-        void acceptConnection(int &new_socket_fd);
-        void sendResponse(std::string message);
+        in_addr acceptConnection(int &new_socket_fd);
+        void sendResponse(std::string message, const in_addr client_addr);
         void startServer();
         ReadFileAndBuildResponse sfs;
         Logger *logger;

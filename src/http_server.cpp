@@ -93,7 +93,7 @@ namespace http
 
         while(true)
         {
-            acceptConnection(new_socket_file_descriptor);
+            const in_addr client_addr = acceptConnection(new_socket_file_descriptor);
             char buffer[BUFFER_SIZE] = {0};
             bytes_received = read(new_socket_file_descriptor, buffer, BUFFER_SIZE);
             if(bytes_received < 0)
@@ -104,14 +104,14 @@ namespace http
                 exit(EXIT_FAILURE);
             }
 
-            sendResponse("World!");
+            sendResponse("World!", client_addr);
 
             close(new_socket_file_descriptor);
         }
 
     }
 
-    void HTTPServer::sendResponse(std::string message)
+    void HTTPServer::sendResponse(std::string message, const in_addr client_addr)
     {
         server_message = sfs.buildResponse();
        
@@ -125,13 +125,16 @@ namespace http
             exit(EXIT_FAILURE);
         }
 
-        (*logger).log("Response sent successfully!");
+        (*logger).log("Response sent successfully! FROM " + std::string(inet_ntoa(socket_address.sin_addr)) + " TO " + std::string(inet_ntoa(client_addr)) + " -- ");
     }
 
     
-    void HTTPServer::acceptConnection(int &new_socket_fd)
+    in_addr HTTPServer::acceptConnection(int &new_socket_fd)
     {
-        new_socket_fd = accept(socket_file_descriptor, (sockaddr*)&socket_address, &socket_address_length);
+        struct sockaddr_in client_addr;
+        socklen_t client_addr_length = sizeof(client_addr);
+
+        new_socket_fd = accept(socket_file_descriptor, (sockaddr*)&client_addr, &client_addr_length);
 
         if(new_socket_fd < 0)
         {
@@ -140,6 +143,11 @@ namespace http
             close(new_socket_file_descriptor);       
             exit(EXIT_FAILURE);
         }
-        (*logger).log("Connection accepted!");
+
+        std::string client_log_message = "Connection accepted! Client address: " + std::string(inet_ntoa(client_addr.sin_addr)) + " -- "; 
+        (*logger).log(client_log_message);
+
+        return client_addr.sin_addr;
+        
     }
 }
