@@ -26,23 +26,20 @@ public:
     std::string resource_path;
     std::string resource_extension;
 
-    std::string file_data;
-    std::string image_data;
-
     std::map<std::string, std::string> handleRequest();
     void fillMap(std::map<std::string, std::string> &http_response_info ,std::string content_type, const int found);
     void getUserAgentRequest(std::string request);
     void parseMessage();
     int getFileData();
     int getImageData();
-
     void getResourceExtension();
+    void makeHTTPResponseInfo(std::map<std::string, std::string> &http_response_info, std::string content_type);
 };
 
 class HTTPResponse : public HTTPMessage
 {
 public:
-    int status_code;
+    std::string status_code;
     std::string reason_phrase;
 
     std::string buildResponse(std::map<std::string, std::string> http_response_info);

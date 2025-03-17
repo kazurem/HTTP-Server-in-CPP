@@ -8,8 +8,6 @@ namespace http
         config_file >> ip_address;
         config_file >> port;
 
-        // sfs.file_to_read = file_to_read;
-
         socket_address_length = sizeof(socket_address);
 
         logger = new Logger("./log.txt", log_to_file);
@@ -26,8 +24,6 @@ namespace http
     {
         this->ip_address = ip_address;
         this->port = port;
-
-        // sfs.file_to_read = file_to_read;
 
         socket_address_length = sizeof(socket_address);
 

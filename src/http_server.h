@@ -32,7 +32,6 @@ namespace http
         in_addr acceptConnection(int &new_socket_fd);
         void sendResponse(std::string response, const in_addr client_addr, std::string status_line);
         void startServer();
-        // ReadFileAndBuildResponse sfs;
         HTTPRequest req_handler;
         HTTPResponse response;
         Logger *logger;

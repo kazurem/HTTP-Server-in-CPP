@@ -6,6 +6,9 @@
 #include "http_parser.h"
 #include <filesystem>
 
+
+//TODO: if no index.html exists, look for any html file and serve it
+
 void HTTPMessage::printHeaders()
 {
     std::cout << "Headers:" << std::endl;
@@ -13,6 +16,7 @@ void HTTPMessage::printHeaders()
         std::cout << header.first << ": " << header.second << std::endl;
     }
 }
+
 
 void HTTPRequest::getUserAgentRequest(std::string request)
 {
@@ -81,12 +85,18 @@ void HTTPRequest::getResourceExtension()
 int HTTPRequest::getFileData()
 {
     std::ifstream file("." + resource_path);
+
+    if(std::filesystem::is_directory("." + resource_path))
+    {
+        return -1;
+    }
+
     if(file.is_open())
     {
         std::ostringstream osstr;
         osstr << file.rdbuf();
 
-        file_data = osstr.str();
+        body = osstr.str();
         return 1;
     }
     return -1;
@@ -95,12 +105,18 @@ int HTTPRequest::getFileData()
 int HTTPRequest::getImageData()
 {
     std::ifstream file("." + resource_path, std::ios::binary);
+
+    if(std::filesystem::is_directory("." + resource_path))
+    {
+        return -1;
+    }
+
     if (file.is_open())
     {
         std::ostringstream osstr;
         osstr << file.rdbuf();
 
-        image_data = osstr.str();
+        body = osstr.str();
 
         file.close();
 
@@ -114,43 +130,69 @@ std::map<std::string, std::string> HTTPRequest::handleRequest()
     parseMessage();
     getResourceExtension();
 
+    if(resource_extension == "")
+    {
+        resource_path = "/index.html";
+        resource_extension = "text/.html";
+    }
+
     std::map<std::string, std::string> http_response_info;
 
     if(method == "GET")
     {
         if(resource_extension == "text/.html")
         {
-            int found = getFileData();
-            fillMap(http_response_info, "text/html", found);
-            http_response_info["body"] = file_data;
-
-            return http_response_info; 
+            makeHTTPResponseInfo(http_response_info, "text/html");
+            return http_response_info;  
         }
         else if(resource_extension == "text/.css")
         {
-            int found = getFileData();
-            fillMap(http_response_info, "text/css", found);
-            http_response_info["body"] = file_data;
-
-            return http_response_info; 
+            makeHTTPResponseInfo(http_response_info, "text/css");
+            return http_response_info;  
         }
         else if(resource_extension == "image/.webp")
         {
-            int found = getImageData();
-            fillMap(http_response_info, "image/webp", found);
-            http_response_info["body"] = image_data;
-
+            makeHTTPResponseInfo(http_response_info, "image/webp");
+            return http_response_info; 
+        }
+        else if(resource_extension == "image/.jpg")
+        {
+            makeHTTPResponseInfo(http_response_info, "image/jpg");
+            return http_response_info;  
+        }
+        else if(resource_extension == "image/.png")
+        {
+            makeHTTPResponseInfo(http_response_info, "image/png");
+            return http_response_info; 
+        }
+        else if(resource_extension == "image/.jpeg")
+        {
+            makeHTTPResponseInfo(http_response_info, "image/jpeg");
             return http_response_info; 
         }
     }
    
-
-
     return http_response_info;
+}
+
+void HTTPRequest::makeHTTPResponseInfo(std::map<std::string, std::string> &http_response_info, std::string content_type)
+{
+    int found;
+    if(content_type == "text/html" || content_type == "text/css")
+    {
+        found = getFileData();
+    }
+    else if(content_type == "image/png" || content_type == "image/webp" || content_type == "image/jpeg" || content_type == "image/jpg")
+    {
+        found = getImageData();
+    }
+    fillMap(http_response_info, content_type, found);
+    http_response_info["body"] = body;
 }
 
 void HTTPRequest::fillMap(std::map<std::string, std::string> &http_response_info,std::string content_type, const int found)
 {
+
     http_response_info["http-version"] = http_version;
     http_response_info["content-type"] = "Content-Type: " + content_type;
     if(found < 0)
@@ -183,8 +225,14 @@ void HTTPRequest::fillMap(std::map<std::string, std::string> &http_response_info
     }     
 }
 
+
 std::string HTTPResponse::buildResponse(std::map<std::string, std::string> http_response_info)
 {
+    status_code = http_response_info["status-code"];
+    reason_phrase = http_response_info["reason-phrase"];
+    http_version = http_response_info["http-version"];
+
+
     std::string response = "";
     response += http_response_info["http-version"] + " ";
     response += http_response_info["status-code"] + " ";
