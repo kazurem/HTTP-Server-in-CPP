@@ -1,10 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <map>
 #include "http_parser.h"
-#include <filesystem>
 
 
 //TODO: if no index.html exists, look for any html file and serve it
