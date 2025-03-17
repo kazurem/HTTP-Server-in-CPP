@@ -84,37 +84,13 @@ namespace http
                 exit(EXIT_FAILURE);
             }
 
-            //get HTTP status line
-            // char status_line[BUFFER_SIZE];
-            // for(int i = 0; i < BUFFER_SIZE; i++)
-            // {
-            //     if(buffer[i] == '\n')
-            //     {
-            //         break;
-            //     }
-            //     else if(buffer[i] == '\r' || buffer[i] == '\n')
-            //     {
-            //         buffer[i] = ' ';
-            //     }
-            //     status_line[i] = buffer[i];
-            // }
-
-
             //Send message to HTTP request handler
             req_handler.getUserAgentRequest(std::string(buffer));
             std::map<std::string, std::string> http_response_info = req_handler.handleRequest();
 
-            for(auto i: http_response_info)
-            {
-                std::cout << i.first << ": " << i.second << std::endl;
-            }
-
             std::string resp = response.buildResponse(http_response_info);
 
-            std::cout << "Response: " << resp << std::endl;
-
-
-            sendResponse(resp, client_addr, http_response_info["status-code"]);
+            sendResponse(resp, client_addr, (req_handler.method + " " + req_handler.resource_path + " " + req_handler.http_version));
 
             close(new_socket_file_descriptor);
         }
@@ -159,7 +135,7 @@ namespace http
             exit(EXIT_FAILURE);
         }
 
-        (*logger).log(std::string(inet_ntoa(client_addr)) + " -- " + status_line + " -- ");
+        (*logger).log(std::string(inet_ntoa(client_addr)) + " -- " + status_line  + " -- ");
 
     }
  

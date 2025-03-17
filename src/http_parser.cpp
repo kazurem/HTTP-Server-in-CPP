@@ -4,14 +4,7 @@
 #include <vector>
 #include "http_parser.h"
 #include <map>
-
-// Get message from user-agent request buffer (done)
-// parse it
-// using if conditions and status codes, perform the appropriate actions
-// build the response
-// send back the response to the HTTP server
-// from there the http server sends the response to the user agent
-
+#include <filesystem>
 
 void HTTPMessage::printHeaders()
 {
@@ -23,20 +16,15 @@ void HTTPMessage::printHeaders()
 
 void HTTPRequest::getUserAgentRequest(std::string request)
 {
-    std::cout << "request(in getUSERAGENTFUNCTION): " << request << std::endl; 
-    this->request = request;
+    this->message = request;
 }
 
 void HTTPRequest::parseMessage()
 {
-    std::istringstream request_message_stream(request);
-
+    std::istringstream request_message_stream(message);
+    
     request_message_stream >> method >> resource_path >> http_version;
     
-    // std::cout << "Method: " << method << std::endl;
-    // std::cout << "Resource Path: " << resource_path << std::endl;
-    // std::cout << "HTTP Version: " << http_version << std::endl;
-
     std::string header_line;
 
     while (std::getline(request_message_stream, header_line)) 
@@ -52,19 +40,47 @@ void HTTPRequest::parseMessage()
 
             // Trim leading spaces in header value
             header_value.erase(0, header_value.find_first_not_of(" \t"));
+            // std::cout << header_name << ":" << header_value;
             
             // Insert into map
             headers[header_name] = header_value;
         }
     }
+}
 
-    // // Print headers for verification
-   
+void HTTPRequest::getResourceExtension()
+{
+    std::filesystem::path resource_path_local(resource_path);
+    resource_extension = resource_path_local.extension().string();
+
+    int found = 0;
+    for(auto &ext: {".html", ".css"})
+    {
+        if(ext == resource_extension)
+        {
+            // std::cout << "FOUND TEXT!" << std::endl;
+            resource_extension = "text/" + resource_extension;
+            found = 1;
+        }
+    }
+
+    if(found == 0)
+    {
+        for(auto&ext: {".webp", ".png", ".jpg", ".jpeg"})
+        {
+            if(ext == resource_extension)
+            {
+                // std::cout << "FOUND IMAGE!" << std::endl;
+                resource_extension = "image/" + resource_extension;
+            }
+        }
+    }
+    
 }
 
 int HTTPRequest::getFileData()
 {
-    std::ifstream file(resource_path);
+    std::ifstream file("." + resource_path);
     if(file.is_open())
     {
         std::ostringstream osstr;
@@ -78,55 +94,69 @@ int HTTPRequest::getFileData()
 
 int HTTPRequest::getImageData()
 {
-    //read image as binary (open in std::ios::binary)
-    return 1;
+    std::ifstream file("." + resource_path, std::ios::binary);
+    if (file.is_open())
+    {
+        std::ostringstream osstr;
+        osstr << file.rdbuf();
+
+        image_data = osstr.str();
+
+        file.close();
+
+        return 1; 
+    }
+    return -1;
 }
-
-
 
 std::map<std::string, std::string> HTTPRequest::handleRequest()
 {
     parseMessage();
+    getResourceExtension();
+
     std::map<std::string, std::string> http_response_info;
 
     if(method == "GET")
     {
-        if(headers["Content-Type:"] == "text/html")
+        if(resource_extension == "text/.html")
         {
             int found = getFileData();
             fillMap(http_response_info, "text/html", found);
             http_response_info["body"] = file_data;
 
-            return http_response_info; //status code 200 OK
+            return http_response_info; 
         }
-        else if(headers["Content-Type:"] == "text/css")
+        else if(resource_extension == "text/.css")
         {
             int found = getFileData();
             fillMap(http_response_info, "text/css", found);
             http_response_info["body"] = file_data;
 
-            return http_response_info; //status code 200 OK
+            return http_response_info; 
         }
-        else if(headers["Content-Type:"] == "image/webp")
+        else if(resource_extension == "image/.webp")
         {
             int found = getImageData();
             fillMap(http_response_info, "image/webp", found);
             http_response_info["body"] = image_data;
 
-            return http_response_info; //status code 200 OK
+            return http_response_info; 
         }
     }
+   
+
+
     return http_response_info;
 }
 
 void HTTPRequest::fillMap(std::map<std::string, std::string> &http_response_info,std::string content_type, const int found)
 {
     http_response_info["http-version"] = http_version;
-    http_response_info["content_type"] = "Content-Type: " + content_type;
+    http_response_info["content-type"] = "Content-Type: " + content_type;
     if(found < 0)
     {
             http_response_info["status-code"] = "404";
-            http_response_info["reason_phrase"] = "Not Found";
+            http_response_info["reason-phrase"] = "Not Found";
             if(content_type == "text/html")
             {
                 http_response_info["body"] = R"""(
@@ -148,9 +178,9 @@ void HTTPRequest::fillMap(std::map<std::string, std::string> &http_response_info
     }
     else
     {
-        http_response_info["status_code"] = "200";
-        http_response_info["reason_phrase"] = "OK";
-    }        
+        http_response_info["status-code"] = "200";
+        http_response_info["reason-phrase"] = "OK";
+    }     
 }
 
 std::string HTTPResponse::buildResponse(std::map<std::string, std::string> http_response_info)
@@ -165,3 +195,4 @@ std::string HTTPResponse::buildResponse(std::map<std::string, std::string> http_
 
     return response;
 }
+
