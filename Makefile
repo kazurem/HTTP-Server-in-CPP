@@ -4,7 +4,7 @@ OBJ_DIR := ./obj
 CXX := g++
 CXXFLAGS := -c -Wall -Werror -pedantic
 
-SOURCES := main.cpp http_server.cpp read_data_and_build_response.cpp logger.cpp http_parser.cpp
+SOURCES := main.cpp http_server.cpp logger.cpp http_parser.cpp
 SRCS := $(addprefix $(SRC_DIR)/, $(SOURCES))
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(SOURCES:.cpp=.o))

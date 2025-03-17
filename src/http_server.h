@@ -8,7 +8,6 @@
 #include <array>
 #include "logger.h"
 #include "http_parser.h"
-#include "read_data_and_build_response.h"
 
 namespace http
 {
