@@ -3,6 +3,8 @@
 #include "logger.h"
 
 
+using namespace std;
+
 int main(int argc, char* argv[])
 {
     std::string ip_address;
@@ -31,7 +33,6 @@ int main(int argc, char* argv[])
     else
     {
         http::HTTPServer server("./server_config.txt");
-        server.startListeningSession();
     }
     http::HTTPServer server(ip_address, port);
     server.startListeningSession();

@@ -2,16 +2,20 @@
 
 namespace http
 {
-
     HTTPServer::HTTPServer(std::string path_to_config, std::string file_to_read, bool log_to_file)
     {
         std::ifstream config_file(path_to_config);
         config_file >> ip_address;
-        sfs.file_to_read = file_to_read;
         config_file >> port;
+
+        sfs.file_to_read = file_to_read;
+
         socket_address_length = sizeof(socket_address);
-        BUFFER_SIZE = 30760;
+
         logger = new Logger("./log.txt", log_to_file);
+
+        BUFFER_SIZE = 30760;
+
         
         //initializing the sockaddr_in struct
         socket_address.sin_family = AF_INET;
@@ -24,9 +28,13 @@ namespace http
     {
         this->ip_address = ip_address;
         this->port = port;
+
         sfs.file_to_read = file_to_read;
+
         socket_address_length = sizeof(socket_address);
+
         logger = new Logger("./log.txt", log_to_file);
+
         BUFFER_SIZE = 30760;
         
         //initializing the sockaddr_in struct
@@ -36,10 +44,73 @@ namespace http
         startServer();
     }
 
-
     HTTPServer::~HTTPServer()
     {
         stopListeningSession();
+    }
+
+    void HTTPServer::stopListeningSession()
+    {
+        close(socket_file_descriptor);
+        close(new_socket_file_descriptor);
+        exit(EXIT_SUCCESS);
+    }
+
+    void HTTPServer::startListeningSession()
+    {
+        //Log server start message
+        std::ostringstream osstr;
+        osstr << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << " (http://" << inet_ntoa(socket_address.sin_addr)<< ":" << ntohs(socket_address.sin_port) << "/)";
+        std::cout << "\n\n";
+        (*logger).log(osstr.str());
+        
+
+        //listen
+        if(listen(socket_file_descriptor, 100) < 0)
+        {
+            (*logger).log("Socket was not able to start listening!");
+            close(socket_file_descriptor);            
+            exit(EXIT_FAILURE);
+        }
+
+        int bytes_received;
+
+        //127.0.0.1 - - [17/Mar/2025 10:51:11] "GET / HTTP/1.1" 304 -
+
+
+        while(true)
+        {
+            const in_addr client_addr = acceptConnection(new_socket_file_descriptor);
+            char buffer[BUFFER_SIZE] = {0};
+            bytes_received = read(new_socket_file_descriptor, buffer, BUFFER_SIZE);
+            if(bytes_received < 0)
+            {
+                (*logger).log("Socket was not able to read data!");
+                close(socket_file_descriptor);            
+                close(new_socket_file_descriptor);            
+                exit(EXIT_FAILURE);
+            }
+
+            //get HTTP status line
+            char status_line[50];
+            for(int i = 0; i < BUFFER_SIZE; i++)
+            {
+                if(buffer[i] == '\n')
+                {
+                    break;
+                }
+                else if(buffer[i] == '\r' || buffer[i] == '\n')
+                {
+                    buffer[i] = ' ';
+                }
+                status_line[i] = buffer[i];
+            }
+
+            sendResponse(client_addr, status_line);
+
+            close(new_socket_file_descriptor);
+        }
+
     }
 
     void HTTPServer::startServer()
@@ -65,53 +136,7 @@ namespace http
         }
     }
 
-
-    void HTTPServer::stopListeningSession()
-    {
-        close(socket_file_descriptor);
-        close(new_socket_file_descriptor);
-        exit(EXIT_SUCCESS);
-    }
-
-
-    void HTTPServer::startListeningSession()
-    {
-        std::ostringstream osstr;
-        osstr << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << " (http://" << inet_ntoa(socket_address.sin_addr)<< ":" << ntohs(socket_address.sin_port) << "/)";
-        (*logger).log(osstr.str());
-        std::cout << "\n\n";
-
-
-        if(listen(socket_file_descriptor, 100) < 0)
-        {
-            (*logger).log("Socket was not able to start listening!");
-            close(socket_file_descriptor);            
-            exit(EXIT_FAILURE);
-        }
-
-        int bytes_received;
-
-        while(true)
-        {
-            const in_addr client_addr = acceptConnection(new_socket_file_descriptor);
-            char buffer[BUFFER_SIZE] = {0};
-            bytes_received = read(new_socket_file_descriptor, buffer, BUFFER_SIZE);
-            if(bytes_received < 0)
-            {
-                (*logger).log("Socket was not able to read data!");
-                close(socket_file_descriptor);            
-                close(new_socket_file_descriptor);            
-                exit(EXIT_FAILURE);
-            }
-
-            sendResponse("World!", client_addr);
-
-            close(new_socket_file_descriptor);
-        }
-
-    }
-
-    void HTTPServer::sendResponse(std::string message, const in_addr client_addr)
+    void HTTPServer::sendResponse(const in_addr client_addr, char *status_line)
     {
         server_message = sfs.buildResponse();
        
@@ -125,10 +150,10 @@ namespace http
             exit(EXIT_FAILURE);
         }
 
-        (*logger).log("Response sent successfully! FROM " + std::string(inet_ntoa(socket_address.sin_addr)) + " TO " + std::string(inet_ntoa(client_addr)) + " -- ");
-    }
+        (*logger).log(std::string(inet_ntoa(client_addr)) + " -- " + status_line + " -- ");
 
-    
+    }
+ 
     in_addr HTTPServer::acceptConnection(int &new_socket_fd)
     {
         struct sockaddr_in client_addr;
@@ -143,9 +168,6 @@ namespace http
             close(new_socket_file_descriptor);       
             exit(EXIT_FAILURE);
         }
-
-        std::string client_log_message = "Connection accepted! Client address: " + std::string(inet_ntoa(client_addr.sin_addr)) + " -- "; 
-        (*logger).log(client_log_message);
 
         return client_addr.sin_addr;
         

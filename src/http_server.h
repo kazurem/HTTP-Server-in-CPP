@@ -30,7 +30,7 @@ namespace http
         int BUFFER_SIZE;
         std::string server_message;
         in_addr acceptConnection(int &new_socket_fd);
-        void sendResponse(std::string message, const in_addr client_addr);
+        void sendResponse(const in_addr client_addr, char *message);
         void startServer();
         ReadFileAndBuildResponse sfs;
         Logger *logger;
