@@ -2,10 +2,7 @@
 #include "http_server.h"
 #include "logger.h"
 
-
 using namespace std;
-
-
 
 int main(int argc, char* argv[])
 {
@@ -33,12 +30,12 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     else {
-        http::HTTPServer server("./server_config.txt", "");
+        http::HTTPServer server("./server_config.txt");
         server.startListeningSession();
         exit(EXIT_SUCCESS);
     }
 
-    http::HTTPServer server(ip_address, port, "");
+    http::HTTPServer server(ip_address, port);
     server.startListeningSession();
     return 0;
 }

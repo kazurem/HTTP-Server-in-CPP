@@ -7,6 +7,7 @@
 #include <sstream>
 #include <array>
 #include "logger.h"
+#include "http_parser.h"
 #include "read_data_and_build_response.h"
 
 namespace http
@@ -30,9 +31,11 @@ namespace http
         static const int BUFFER_SIZE = 30760;
         std::string server_message;
         in_addr acceptConnection(int &new_socket_fd);
-        void sendResponse(const in_addr client_addr, char *message);
+        void sendResponse(std::string response, const in_addr client_addr, std::string status_line);
         void startServer();
-        ReadFileAndBuildResponse sfs;
+        // ReadFileAndBuildResponse sfs;
+        HTTPRequest req_handler;
+        HTTPResponse response;
         Logger *logger;
     };
 }

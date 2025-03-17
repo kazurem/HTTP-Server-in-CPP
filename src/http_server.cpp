@@ -2,15 +2,13 @@
 
 namespace http
 {
-
-
     HTTPServer::HTTPServer(std::string path_to_config, std::string file_to_read, bool log_to_file)
     {
         std::ifstream config_file(path_to_config);
         config_file >> ip_address;
         config_file >> port;
 
-        sfs.file_to_read = file_to_read;
+        // sfs.file_to_read = file_to_read;
 
         socket_address_length = sizeof(socket_address);
 
@@ -29,7 +27,7 @@ namespace http
         this->ip_address = ip_address;
         this->port = port;
 
-        sfs.file_to_read = file_to_read;
+        // sfs.file_to_read = file_to_read;
 
         socket_address_length = sizeof(socket_address);
 
@@ -87,26 +85,39 @@ namespace http
             }
 
             //get HTTP status line
-            char status_line[BUFFER_SIZE];
-            for(int i = 0; i < BUFFER_SIZE; i++)
+            // char status_line[BUFFER_SIZE];
+            // for(int i = 0; i < BUFFER_SIZE; i++)
+            // {
+            //     if(buffer[i] == '\n')
+            //     {
+            //         break;
+            //     }
+            //     else if(buffer[i] == '\r' || buffer[i] == '\n')
+            //     {
+            //         buffer[i] = ' ';
+            //     }
+            //     status_line[i] = buffer[i];
+            // }
+
+
+            //Send message to HTTP request handler
+            req_handler.getUserAgentRequest(std::string(buffer));
+            std::map<std::string, std::string> http_response_info = req_handler.handleRequest();
+
+            for(auto i: http_response_info)
             {
-                if(buffer[i] == '\n')
-                {
-                    break;
-                }
-                else if(buffer[i] == '\r' || buffer[i] == '\n')
-                {
-                    buffer[i] = ' ';
-                }
-                status_line[i] = buffer[i];
+                std::cout << i.first << ": " << i.second << std::endl;
             }
 
+            std::string resp = response.buildResponse(http_response_info);
 
-            sendResponse(client_addr, status_line);
+            std::cout << "Response: " << resp << std::endl;
+
+
+            sendResponse(resp, client_addr, http_response_info["status-code"]);
 
             close(new_socket_file_descriptor);
         }
-
     }
 
     void HTTPServer::startServer()
@@ -134,9 +145,9 @@ namespace http
         }
     }
 
-    void HTTPServer::sendResponse(const in_addr client_addr, char *status_line)
+    void HTTPServer::sendResponse(std::string response, const in_addr client_addr, std::string status_line)
     {
-        server_message = sfs.buildResponse();
+        server_message = response;
        
         int bytes_sent = write(new_socket_file_descriptor, server_message.c_str(), server_message.size());
 
