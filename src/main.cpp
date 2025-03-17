@@ -3,6 +3,14 @@
 
 using namespace std;
 
+/*
+TODO: 1.if no index.html exists, look for any html file and serve it
+2. adding comments
+3. modify README.md
+4. Learn more about HTTP requests and responses
+5. dip your toes into asynchronous IO
+*/
+
 int main(int argc, char* argv[])
 {
     std::string ip_address;

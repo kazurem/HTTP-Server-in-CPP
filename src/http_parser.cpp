@@ -1,7 +1,7 @@
 #include "http_parser.h"
 
 
-//TODO: if no index.html exists, look for any html file and serve it
+
 
 void HTTPMessage::printHeaders()
 {
