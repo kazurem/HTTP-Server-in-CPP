@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+
 int main(int argc, char* argv[])
 {
     std::string ip_address;
@@ -30,10 +32,12 @@ int main(int argc, char* argv[])
         std::cerr << "Usage: " << argv[0] << " [ip_address port]" << std::endl;
         exit(EXIT_FAILURE);
     }
-    else
-    {
+    else {
         http::HTTPServer server("./server_config.txt");
+        server.startListeningSession();
+        exit(EXIT_SUCCESS);
     }
+
     http::HTTPServer server(ip_address, port);
     server.startListeningSession();
     return 0;

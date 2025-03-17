@@ -37,7 +37,7 @@ std::string ReadFileAndBuildResponse::buildResponse()
 
     int head_pos = html_body.find("</head>"); // find the position of the ending head tag
 
-    if (head_pos != std::string::npos) // in case there is a head tag
+    if ((size_t) head_pos != std::string::npos) // in case there is a head tag
     {
         std::string style_tag = "<style>" + css_body + "</style>";
         html_body.insert(head_pos, style_tag);

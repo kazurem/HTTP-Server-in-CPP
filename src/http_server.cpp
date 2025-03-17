@@ -2,6 +2,8 @@
 
 namespace http
 {
+
+
     HTTPServer::HTTPServer(std::string path_to_config, std::string file_to_read, bool log_to_file)
     {
         std::ifstream config_file(path_to_config);
@@ -13,8 +15,6 @@ namespace http
         socket_address_length = sizeof(socket_address);
 
         logger = new Logger("./log.txt", log_to_file);
-
-        BUFFER_SIZE = 30760;
 
         
         //initializing the sockaddr_in struct
@@ -35,7 +35,6 @@ namespace http
 
         logger = new Logger("./log.txt", log_to_file);
 
-        BUFFER_SIZE = 30760;
         
         //initializing the sockaddr_in struct
         socket_address.sin_family = AF_INET;
@@ -61,7 +60,6 @@ namespace http
         //Log server start message
         std::ostringstream osstr;
         osstr << "Starting listening session at address " << inet_ntoa(socket_address.sin_addr) << " on port " << ntohs(socket_address.sin_port) << " (http://" << inet_ntoa(socket_address.sin_addr)<< ":" << ntohs(socket_address.sin_port) << "/)";
-        std::cout << "\n\n";
         (*logger).log(osstr.str());
         
 
@@ -74,9 +72,6 @@ namespace http
         }
 
         int bytes_received;
-
-        //127.0.0.1 - - [17/Mar/2025 10:51:11] "GET / HTTP/1.1" 304 -
-
 
         while(true)
         {
@@ -92,7 +87,7 @@ namespace http
             }
 
             //get HTTP status line
-            char status_line[50];
+            char status_line[BUFFER_SIZE];
             for(int i = 0; i < BUFFER_SIZE; i++)
             {
                 if(buffer[i] == '\n')
@@ -105,6 +100,7 @@ namespace http
                 }
                 status_line[i] = buffer[i];
             }
+
 
             sendResponse(client_addr, status_line);
 
@@ -131,6 +127,8 @@ namespace http
             std::ostringstream osstr;
             osstr << "Socket could not be bound to ADDRESS " << inet_ntoa(socket_address.sin_addr) << " on PORT " << ntohs(socket_address.sin_port);
             (*logger).log(osstr.str());
+
+
             close(socket_file_descriptor);            
             exit(EXIT_FAILURE);
         }
@@ -142,7 +140,7 @@ namespace http
        
         int bytes_sent = write(new_socket_file_descriptor, server_message.c_str(), server_message.size());
 
-        if(bytes_sent != server_message.size())
+        if((size_t) bytes_sent != server_message.size())
         {
             (*logger).log("Socket was not able to send data!");
             close(socket_file_descriptor);            

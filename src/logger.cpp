@@ -26,6 +26,6 @@ void Logger::log(std::string message)
     std::cout << message << " " << ctime(&current_time);
     if(log_to_file == true)
     {
-        write_to_file << message << ctime(&current_time) << std::endl;
+        write_to_file << message << ctime(&current_time) << '\n' << std::flush;
     }
 }

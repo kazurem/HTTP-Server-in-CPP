@@ -1,1 +1,0 @@
-g++ ./src/main.cpp ./src/logger.cpp ./src/http_server.cpp ./src/read_data_and_build_response.cpp -o http-server
