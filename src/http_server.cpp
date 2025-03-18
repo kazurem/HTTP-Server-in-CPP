@@ -2,23 +2,6 @@
 
 namespace http
 {
-    HTTPServer::HTTPServer(std::string path_to_config, std::string file_to_read, bool log_to_file)
-    {
-        std::ifstream config_file(path_to_config);
-        config_file >> ip_address;
-        config_file >> port;
-
-        socket_address_length = sizeof(socket_address);
-
-        logger = new Logger("./log.txt", log_to_file);
-
-        // initializing the sockaddr_in struct
-        socket_address.sin_family = AF_INET;
-        socket_address.sin_port = htons(this->port);
-        socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str());
-        startServer();
-    }
-
     HTTPServer::HTTPServer(std::string ip_address, int port, std::string file_to_read, bool log_to_file)
     {
         this->ip_address = ip_address;

@@ -23,8 +23,9 @@ AFTER:
 
 int main(int argc, char *argv[])
 {
-    std::string ip_address;
-    int port;
+    //default values
+    std::string ip_address = "127.0.0.1";
+    int port = 8000;
 
     if (argc == 3)
     {
@@ -53,12 +54,6 @@ int main(int argc, char *argv[])
     {
         std::cerr << "Usage: " << argv[0] << " [ip_address port]" << std::endl;
         exit(EXIT_FAILURE);
-    }
-    else
-    {
-        http::HTTPServer server("./server_config.txt");
-        server.startListeningSession();
-        exit(EXIT_SUCCESS);
     }
 
     http::HTTPServer server(ip_address, port);
