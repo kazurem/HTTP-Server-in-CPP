@@ -2,12 +2,6 @@
 
 Using C++ to make a HTTP server from scratch
 
-Screenshots:
-![alt text](images/image.png)
-![alt text](images/image1.png)
-![alt text](images/image2.jpeg)
-
-
 # 1. Scope of this Project:
 1. Basic server
 2. Static File Serving
