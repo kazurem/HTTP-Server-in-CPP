@@ -93,7 +93,7 @@ int HTTPRequest::getFileData(std::ios::openmode read_mode)
 
     if (std::filesystem::is_directory(resource_path))
     {
-        return -1;
+        return EXIT_FAILURE;
     }
 
     // read all data and store it in body variable(class member)
@@ -105,10 +105,9 @@ int HTTPRequest::getFileData(std::ios::openmode read_mode)
         body = osstr.str();
 
         file.close();
-
-        return 1;
+        return EXIT_SUCCESS;
     }
-    return -1;
+    return EXIT_FAILURE;
 }
 
 std::map<std::string, std::string> HTTPRequest::handleRequest()
@@ -125,8 +124,8 @@ std::map<std::string, std::string> HTTPRequest::handleRequest()
         {
             if (content_type == ALL_CONTENT_TYPES[i])
             {
-                int found = readDataOfResourcetoBody(info_for_response_construction);
-                setHTTPResponseInfo(info_for_response_construction, found);
+                int file_data_read_operation_status = readDataOfResourcetoBody(info_for_response_construction);
+                setHTTPResponseInfo(info_for_response_construction, file_data_read_operation_status);
                 return info_for_response_construction;
             }
         }
@@ -138,28 +137,28 @@ std::map<std::string, std::string> HTTPRequest::handleRequest()
 
 int HTTPRequest::readDataOfResourcetoBody(std::map<std::string, std::string> &info_for_response_construction)
 {
-    int found;
+    int file_data_read_operation_status;
 
     // read file data in the appropriate manner according to their extensions e.g binary read for images
     for (int i = 0; i < TOTAL_CONTENT_TYPES; i++)
     {
         if (content_type == TEXT_CONTENT_TYPES[i])
         {
-            found = getFileData(std::ios::in); // read file in normal text mode
+            file_data_read_operation_status = getFileData(std::ios::in); // read file in normal text mode
         }
         else if (content_type == IMAGE_CONTENT_TYPES[i])
         {
-            found = getFileData(std::ios::binary); // read file in binary mode
+            file_data_read_operation_status = getFileData(std::ios::binary); // read file in binary mode
         }
     }
-    return found;
+    return file_data_read_operation_status;
 }
 
-void HTTPRequest::setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int found)
+void HTTPRequest::setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int file_data_read_operation_status)
 {
     info_for_response_construction["http-version"] = http_version;
 
-    if (found < 0)
+    if (file_data_read_operation_status == EXIT_FAILURE)
     {
         info_for_response_construction["status-code"] = "404";
         info_for_response_construction["reason-phrase"] = "Not Found";
@@ -167,11 +166,10 @@ void HTTPRequest::setHTTPResponseInfo(std::map<std::string, std::string> &info_f
     }
     else
     {
-
         if (content_type == "USCT" || content_type == "")
         {
-            info_for_response_construction["status-code"] = "415";
-            info_for_response_construction["reason-phrase"] = "Unsupported Media Type";
+            info_for_response_construction["status-code"] = "404";
+            info_for_response_construction["reason-phrase"] = "Bad Request";
             info_for_response_construction["content-type"] = "Content-Type: " + content_type;
             info_for_response_construction["body"] = CONTENT_TYPE_NOT_SUPPORTED_HTML;
         }

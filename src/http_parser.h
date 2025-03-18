@@ -34,7 +34,7 @@ public:
     std::string getRequest();
 
 private:
-    void setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int found);
+    void setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int file_data_read_operation_status);
     void parseRequest();
     void getContentType();
     // read_mode: 1 for binary read and 0 for normal text read
