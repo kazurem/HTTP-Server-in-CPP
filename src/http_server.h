@@ -14,8 +14,8 @@ namespace http
     class HTTPServer
     {
     public:
-        HTTPServer(std::string ip_addr, int port,std::string file_to_read = "index.html", bool log_to_file = true);
-        HTTPServer(std::string path_to_config,std::string file_to_read = "index.html", bool log_to_file = true);
+        HTTPServer(std::string ip_addr, int port, std::string file_to_read = "index.html", bool log_to_file = true);
+        HTTPServer(std::string path_to_config, std::string file_to_read = "index.html", bool log_to_file = true);
         ~HTTPServer();
         void startListeningSession();
         void stopListeningSession();
@@ -37,4 +37,3 @@ namespace http
         Logger *logger;
     };
 }
-

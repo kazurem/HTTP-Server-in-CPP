@@ -6,18 +6,16 @@
 #include <map>
 #include <filesystem>
 
-
 class HTTPMessage
 {
 public:
-    std::string message; //request for HTTPRequest and response for HTTPResponse
+    std::string message; // request for HTTPRequest and response for HTTPResponse
     std::string http_version;
     std::map<std::string, std::string> headers;
     std::string body;
 
     void printHeaders();
     void parseMessage();
-
 };
 
 class HTTPRequest : public HTTPMessage
@@ -28,7 +26,7 @@ public:
     std::string resource_extension;
 
     std::map<std::string, std::string> handleRequest();
-    void fillMap(std::map<std::string, std::string> &http_response_info ,std::string content_type, const int found);
+    void fillMap(std::map<std::string, std::string> &http_response_info, std::string content_type, const int found);
     void getUserAgentRequest(std::string request);
     void parseMessage();
     int getFileData();
@@ -45,4 +43,3 @@ public:
 
     std::string buildResponse(std::map<std::string, std::string> http_response_info);
 };
-
