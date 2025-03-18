@@ -9,16 +9,29 @@ void HTTPMessage::printHeaders()
     }
 }
 
-void HTTPRequest::getUserAgentRequest(std::string request)
+void HTTPRequest::setRequest(std::string request)
 {
     this->message = request;
 }
 
-void HTTPRequest::parseMessage()
+std::string HTTPRequest::getRequest()
+{
+    return this->message;
+}
+
+void HTTPRequest::parseRequest()
 {
     std::istringstream request_message_stream(message);
 
     request_message_stream >> method >> resource_path >> http_version;
+    resource_path = "." + resource_path; // resource_path by default is "/x/y/..../z.ext". convert it to "./x/y/.../z.ext"
+
+    // serve index.html if no resource is specified
+    if (resource_path == "./" || resource_path == "")
+    {
+        resource_path = "./index.html";
+        content_type = "text/html";
+    }
 
     std::string header_line;
 
@@ -37,7 +50,6 @@ void HTTPRequest::parseMessage()
 
             // Trim leading spaces in header value
             header_value.erase(0, header_value.find_first_not_of(" \t"));
-            // std::cout << header_name << ":" << header_value;
 
             // Insert into map
             headers[header_name] = header_value;
@@ -45,64 +57,46 @@ void HTTPRequest::parseMessage()
     }
 }
 
-void HTTPRequest::getResourceExtension()
+//(note to self: write a test for this)
+// returns the content type of the requested resource. Such as, text/html, text/css, image/png etc
+void HTTPRequest::getContentType()
 {
-    std::filesystem::path resource_path_local(resource_path);
-    resource_extension = resource_path_local.extension().string();
+    std::filesystem::path resrc_path(resource_path);
+    content_type = resrc_path.extension().string();
 
-    int found = 0;
-    for (auto &ext : {".html", ".css"})
-    {
-        if (ext == resource_extension)
-        {
-            // std::cout << "FOUND TEXT!" << std::endl;
-            resource_extension = "text/" + resource_extension;
-            found = 1;
-        }
-    }
+    size_t position_of_extension_dot = content_type.find(".");
 
-    if (found == 0)
+    if (position_of_extension_dot != std::string::npos)
     {
-        for (auto &ext : {".webp", ".png", ".jpg", ".jpeg"})
+        for (int i = 0; i < TOTAL_CONTENT_TYPES; i++)
         {
-            if (ext == resource_extension)
+            if (content_type == TEXT_FILE_FORMATS[i])
             {
-                // std::cout << "FOUND IMAGE!" << std::endl;
-                resource_extension = "image/" + resource_extension;
+                // resource_extension has the format ".ext". I want ext
+                // used .substr(position_of_dot + 1) to return everything after the "."
+                content_type = "text/" + content_type.substr(position_of_extension_dot + 1);
+                return;
+            }
+            else if (content_type == BINARY_FILE_FORMATS[i])
+            {
+                content_type = "image/" + content_type.substr(position_of_extension_dot + 1);
+                return;
             }
         }
+        content_type = "USCT";
     }
 }
 
-int HTTPRequest::getFileData()
+int HTTPRequest::getFileData(std::ios::openmode read_mode)
 {
-    std::ifstream file("." + resource_path);
+    std::ifstream file(resource_path, read_mode);
 
-    if (std::filesystem::is_directory("." + resource_path))
+    if (std::filesystem::is_directory(resource_path))
     {
         return -1;
     }
 
-    if (file.is_open())
-    {
-        std::ostringstream osstr;
-        osstr << file.rdbuf();
-
-        body = osstr.str();
-        return 1;
-    }
-    return -1;
-}
-
-int HTTPRequest::getImageData()
-{
-    std::ifstream file("." + resource_path, std::ios::binary);
-
-    if (std::filesystem::is_directory("." + resource_path))
-    {
-        return -1;
-    }
-
+    // read all data and store it in body variable(class member)
     if (file.is_open())
     {
         std::ostringstream osstr;
@@ -119,126 +113,91 @@ int HTTPRequest::getImageData()
 
 std::map<std::string, std::string> HTTPRequest::handleRequest()
 {
-    parseMessage();
-    getResourceExtension();
+    parseRequest();
+    getContentType();
 
-    if (resource_extension == "")
+    // info required to build http response
+    std::map<std::string, std::string> info_for_response_construction;
+
+    for (int i = 0; i < TOTAL_CONTENT_TYPES; i++)
     {
-        resource_path = "/index.html";
-        resource_extension = "text/.html";
+        if (method == "GET")
+        {
+            if (content_type == ALL_CONTENT_TYPES[i])
+            {
+                int found = readDataOfResourcetoBody(info_for_response_construction);
+                setHTTPResponseInfo(info_for_response_construction, found);
+                return info_for_response_construction;
+            }
+        }
+        //could add further else if statements to incorporate other HTTP methods like PUT, POST
     }
-
-    std::map<std::string, std::string> http_response_info;
-
-    if (method == "GET")
-    {
-        if (resource_extension == "text/.html")
-        {
-            makeHTTPResponseInfo(http_response_info, "text/html");
-            return http_response_info;
-        }
-        else if (resource_extension == "text/.css")
-        {
-            makeHTTPResponseInfo(http_response_info, "text/css");
-            return http_response_info;
-        }
-        else if (resource_extension == "image/.webp")
-        {
-            makeHTTPResponseInfo(http_response_info, "image/webp");
-            return http_response_info;
-        }
-        else if (resource_extension == "image/.jpg")
-        {
-            makeHTTPResponseInfo(http_response_info, "image/jpg");
-            return http_response_info;
-        }
-        else if (resource_extension == "image/.png")
-        {
-            makeHTTPResponseInfo(http_response_info, "image/png");
-            return http_response_info;
-        }
-        else if (resource_extension == "image/.jpeg")
-        {
-            makeHTTPResponseInfo(http_response_info, "image/jpeg");
-            return http_response_info;
-        }
-        else if (resource_extension == "image/.svg")
-        {
-            makeHTTPResponseInfo(http_response_info, "image/svg+xml");
-            return http_response_info;
-        }
-    }
-
-    return http_response_info;
+    setHTTPResponseInfo(info_for_response_construction, 1);
+    return info_for_response_construction;
 }
 
-void HTTPRequest::makeHTTPResponseInfo(std::map<std::string, std::string> &http_response_info, std::string content_type)
+int HTTPRequest::readDataOfResourcetoBody(std::map<std::string, std::string> &info_for_response_construction)
 {
     int found;
-    if (content_type == "text/html" || content_type == "text/css")
+
+    // read file data in the appropriate manner according to their extensions e.g binary read for images
+    for (int i = 0; i < TOTAL_CONTENT_TYPES; i++)
     {
-        found = getFileData();
+        if (content_type == TEXT_CONTENT_TYPES[i])
+        {
+            found = getFileData(std::ios::in); // read file in normal text mode
+        }
+        else if (content_type == IMAGE_CONTENT_TYPES[i])
+        {
+            found = getFileData(std::ios::binary); // read file in binary mode
+        }
     }
-    else if (content_type == "image/png" || content_type == "image/webp" || content_type == "image/jpeg" || content_type == "image/jpg")
-    {
-        found = getImageData();
-    }
-    else if (content_type == "image/svg+xml")
-    {
-        found = getFileData();
-    }
-    fillMap(http_response_info, content_type, found);
-    http_response_info["body"] = body;
+    return found;
 }
 
-void HTTPRequest::fillMap(std::map<std::string, std::string> &http_response_info, std::string content_type, const int found)
+void HTTPRequest::setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int found)
 {
+    info_for_response_construction["http-version"] = http_version;
 
-    http_response_info["http-version"] = http_version;
-    http_response_info["content-type"] = "Content-Type: " + content_type;
     if (found < 0)
     {
-        http_response_info["status-code"] = "404";
-        http_response_info["reason-phrase"] = "Not Found";
-        if (content_type == "text/html")
-        {
-            http_response_info["body"] = R"""(
-                                                <!DOCTYPE html>
-                                                <html>
-                                                <head>
-                                                    <title>404 Not Found</title>
-                                                </head>
-                                                <body>
-                                                    <h1>Not Found</h1>
-                                                    <p>The requested URL was not found on this server.</p>
-                                                </body>
-                                                </html>)""";
-        }
-        else
-        {
-            http_response_info["body"] = "";
-        }
+        info_for_response_construction["status-code"] = "404";
+        info_for_response_construction["reason-phrase"] = "Not Found";
+        info_for_response_construction["body"] = RESOURCE_NOT_FOUND_HTML;
     }
     else
     {
-        http_response_info["status-code"] = "200";
-        http_response_info["reason-phrase"] = "OK";
+
+        if (content_type == "USCT" || content_type == "")
+        {
+            info_for_response_construction["status-code"] = "415";
+            info_for_response_construction["reason-phrase"] = "Unsupported Media Type";
+            info_for_response_construction["content-type"] = "Content-Type: " + content_type;
+            info_for_response_construction["body"] = CONTENT_TYPE_NOT_SUPPORTED_HTML;
+        }
+        else
+        {
+            info_for_response_construction["status-code"] = "200";
+            info_for_response_construction["reason-phrase"] = "OK";
+            info_for_response_construction["content-type"] = "Content-Type: " + content_type;
+            info_for_response_construction["body"] = body;
+        }
     }
 }
 
-std::string HTTPResponse::buildResponse(std::map<std::string, std::string> http_response_info)
+std::string HTTPResponse::constructResponse(std::map<std::string, std::string> info_for_response_construction)
 {
-    status_code = http_response_info["status-code"];
-    reason_phrase = http_response_info["reason-phrase"];
-    http_version = http_response_info["http-version"];
+    status_code = info_for_response_construction["status-code"];
+    reason_phrase = info_for_response_construction["reason-phrase"];
+    http_version = info_for_response_construction["http-version"];
 
     std::string response = "";
-    response += http_response_info["http-version"] + " ";
-    response += http_response_info["status-code"] + " ";
-    response += http_response_info["reason-phrase"] + "\r\n";
-    response += http_response_info["content-type"] + "\r\n\r\n";
+    response += info_for_response_construction["http-version"] + " ";
+    response += info_for_response_construction["status-code"] + " ";
+    response += info_for_response_construction["reason-phrase"] + "\r\n";
+    response += info_for_response_construction["content-type"] + "\r\n\r\n";
 
-    response += http_response_info["body"];
+    response += info_for_response_construction["body"];
 
     return response;
 }

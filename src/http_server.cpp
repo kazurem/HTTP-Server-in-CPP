@@ -78,10 +78,10 @@ namespace http
             }
 
             // Send message to HTTP request handler
-            req_handler.getUserAgentRequest(std::string(buffer));
+            req_handler.setRequest((std::string) buffer);
             std::map<std::string, std::string> http_response_info = req_handler.handleRequest();
 
-            std::string resp = response.buildResponse(http_response_info);
+            std::string resp = response.constructResponse(http_response_info);
 
             // std::cout << "Response: " << resp << std::endl;
 

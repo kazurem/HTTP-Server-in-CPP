@@ -4,7 +4,10 @@
 #include <fstream>
 #include <vector>
 #include <map>
-#include <filesystem>
+#include <filesystem> //this is a c++17 library so the whole program wont compile on older c++ versions. (note to self: try to remove this)
+
+#include "GLOBAL.h"
+#include "utils.h"
 
 class HTTPMessage
 {
@@ -15,7 +18,6 @@ public:
     std::string body;
 
     void printHeaders();
-    void parseMessage();
 };
 
 class HTTPRequest : public HTTPMessage
@@ -23,16 +25,21 @@ class HTTPRequest : public HTTPMessage
 public:
     std::string method;
     std::string resource_path;
-    std::string resource_extension;
+    std::string content_type;
+    std::string content_type_status;
 
     std::map<std::string, std::string> handleRequest();
-    void fillMap(std::map<std::string, std::string> &http_response_info, std::string content_type, const int found);
-    void getUserAgentRequest(std::string request);
-    void parseMessage();
-    int getFileData();
-    int getImageData();
-    void getResourceExtension();
-    void makeHTTPResponseInfo(std::map<std::string, std::string> &http_response_info, std::string content_type);
+
+    void setRequest(std::string request);
+    std::string getRequest();
+
+private:
+    void setHTTPResponseInfo(std::map<std::string, std::string> &info_for_response_construction, const int found);
+    void parseRequest();
+    void getContentType();
+    // read_mode: 1 for binary read and 0 for normal text read
+    int getFileData(std::ios::openmode read_mode);
+    int readDataOfResourcetoBody(std::map<std::string, std::string> &info_for_response_construction);
 };
 
 class HTTPResponse : public HTTPMessage
@@ -40,6 +47,7 @@ class HTTPResponse : public HTTPMessage
 public:
     std::string status_code;
     std::string reason_phrase;
-
-    std::string buildResponse(std::map<std::string, std::string> http_response_info);
+    
+    std::string parseResponse(std::string response);
+    std::string constructResponse(std::map<std::string, std::string> info_for_response_construction);
 };
