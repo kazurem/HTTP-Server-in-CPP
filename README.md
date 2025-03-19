@@ -1,8 +1,35 @@
 # HTTP-Server
 
-Using C++ to make a HTTP server from scratch
+## Introduction:
 
-# 1. Scope of this Project:
+
+## How to run:
+First, get the copy of the repo into your local machine:  
+```
+git clone https://github.com/kazurem/HTTP-Server-in-CPP
+```
+  
+Then go into the main directory:
+```
+cd ./HTTP-Server-in-CPP
+```
+
+Run "make" to compile the program and produce the executable:
+```
+make
+```
+Run the executable.  
+Format:  
+```
+./http-server ip_address port
+```
+  
+Example:
+```
+./http-server 127.0.0.1 8000
+```
+
+## Scope of this Project:
 1. Basic server
 2. Static File Serving
 3. Server configuration through files
