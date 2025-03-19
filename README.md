@@ -29,6 +29,13 @@ Example:
 ./http-server 127.0.0.1 8000
 ```
 
+## How to contribute:
+1. Fork the repo.
+2. Clone the forked repo into your machine.
+3. Make the desired changes.
+4. Commit and push.
+5. Open the pull request.
+
 ## Scope of this Project:
 1. Basic server
 2. Static File Serving
