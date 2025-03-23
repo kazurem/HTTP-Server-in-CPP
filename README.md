@@ -45,4 +45,8 @@ Example:
 If I have extra time then I will also do:
 1. Implement HTTPS for security
 2. Implement Asynchronous I/O
-3. Basic GUI
+3. Basic GUI  
+## Resources used to learn:
+https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7  
+https://www.tutorialspoint.com/http/index.htm  
+https://en.cppreference.com/w/
