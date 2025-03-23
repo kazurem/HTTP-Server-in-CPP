@@ -1,0 +1,38 @@
+#pragma once
+
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sstream>
+#include "logger.h"
+#include "read_data_and_build_response.h"
+
+namespace http
+{
+    class HTTPServer
+    {
+    public:
+        HTTPServer(std::string ip_addr, int port,std::string file_to_read = "index.html", bool log_to_file = true);
+        HTTPServer(std::string path_to_config,std::string file_to_read = "index.html", bool log_to_file = true);
+        ~HTTPServer();
+        void startListeningSession();
+        void stopListeningSession();
+
+    private:
+        int port;
+        std::string ip_address;
+        int socket_file_descriptor;
+        int new_socket_file_descriptor;
+        struct sockaddr_in socket_address;
+        unsigned int socket_address_length;
+        int BUFFER_SIZE;
+        std::string server_message;
+        in_addr acceptConnection(int &new_socket_fd);
+        void sendResponse(std::string message, const in_addr client_addr);
+        void startServer();
+        ReadFileAndBuildResponse sfs;
+        Logger *logger;
+    };
+}

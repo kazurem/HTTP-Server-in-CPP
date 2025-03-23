@@ -1,0 +1,185 @@
+:root {
+    --primary-color: rgb(177, 4, 14);
+    --secondary-color: rgb(140, 21, 21)
+}
+
+
+/* Body CSS */
+body {
+    color: white;
+    font-family: "Source Sans 4";
+    margin: 0;
+}
+
+
+/* Header CSS */
+.combined-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.6) 60%,
+        rgba(0, 0, 0, 0) 100%
+    );
+}
+
+/* First Header CSS */
+.first-header {
+    display: flex;
+    font-family: "Source Sans 3";
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 0;
+    white-space: nowrap;
+    width: 100%;
+    position: relative;
+}
+
+.first-header p {
+    font-family: "Source Sans 4";
+}
+
+.first-header p {
+    font-size: 29.5556px;
+    margin-top: 10px;
+}
+
+.first-header ul {
+    list-style-type: none;
+
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 19px;
+    margin-top: 5px;
+}
+
+.first-header ul li {
+    margin-left: 4%;
+    font-weight: 600;
+}
+
+.first-header a {
+    text-decoration: none;
+    color: white;
+}
+
+
+
+
+/* Second Header CSS */
+.second-header {
+    margin: 0;
+    color: white;
+    font-size: 22.5px;
+    font-weight: bold;
+    font-family: "Source Sans 3";
+    width: 100%;
+    position: relative;
+    top: 0; 
+}
+
+.second-header ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    margin-top: 0;
+}
+
+.second-header ul li{
+    margin-left: 1.5%;
+}
+
+.second-header a {
+    text-decoration: none;
+    color: white;
+}
+
+
+
+
+/* Footer CSS */
+footer {
+    background-color: var(--secondary-color);
+    padding: 20px;
+    display: flex;
+    padding-left: 100px;
+    align-items: center;
+}
+
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 40px;
+}
+
+.footer-info ul {
+    list-style-type: none;
+}
+
+.footer-info  ul li {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.footer-info-3 {
+    margin-left: 40px;
+}
+
+.footer-info-1 {
+    font-weight: bold;
+}
+
+.footer-uni-name {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Main section css */
+main {
+    position: relative; 
+    z-index: -20;
+    height: 100vh;
+}
+
+main img {
+    object-fit: cover; 
+    width: 100vw; 
+    height: 100vh;
+}
+
+.stanford-name {
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    font-size: 7vw; 
+    text-shadow: 0px 0px 40px black;
+}
+
+
+/* Media Queries */
+@media (max-width: 1050px) {
+    .second-header {
+        display: none;
+    }
+
+    .first-header ul{
+        display: none;
+    }
+
+    .first-header {
+        background-color: var(--primary-color);
+    }
+
+    footer {
+        flex-direction: column;
+        padding: 20px;
+    }
+}
