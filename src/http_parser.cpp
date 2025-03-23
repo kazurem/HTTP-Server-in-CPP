@@ -131,7 +131,7 @@ std::map<std::string, std::string> HTTPRequest::handleRequest()
         }
         //could add further else if statements to incorporate other HTTP methods like PUT, POST
     }
-    setHTTPResponseInfo(info_for_response_construction, 1);
+    setHTTPResponseInfo(info_for_response_construction, EXIT_SUCCESS);
     return info_for_response_construction;
 }
 
