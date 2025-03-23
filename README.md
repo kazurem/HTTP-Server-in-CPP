@@ -34,7 +34,7 @@ Example:
 2. Clone the forked repo into your machine.
 3. Make the desired changes.
 4. Commit and push.
-5. Open the pull request.
+5. Open the pull request  .
 
 ## Scope of this Project:
 1. Basic server
